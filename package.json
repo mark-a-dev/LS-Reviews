@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-    "dependencies": {
+  "dependencies": {
     "readline-sync": "^1.4.10"
   },
   "devDependencies": {
