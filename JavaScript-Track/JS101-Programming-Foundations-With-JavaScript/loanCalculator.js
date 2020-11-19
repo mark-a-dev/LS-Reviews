@@ -15,8 +15,8 @@ You should use this if you want
 const promptUser = (message) => console.log(`=> ${message}`);
 
 
-const getValidNumber = (number, lowestNum = 0 ) => {
-  if ( Number.isNaN(number)) {
+const getValidNumber = (number, lowestNum = 0) => {
+  if (Number.isNaN(parseFloat(number))) {
     const newNumber = readline.question(promptUser("Hmmm... that's not a valid number... Please try again with a valid number.\n"));
     getValidNumber(newNumber);
   }
@@ -47,7 +47,7 @@ const getLoanLengthInMonths = () => {
   promptUser("Would you like the length of the loan in years?");
   const wantYears = getYesOrNo();
 
-  if ( wantYears ) {
+  if (wantYears) {
     promptUser('How many years will you have the loan for?');
   } else {
     promptUser('How many months will you have the loan for?');
@@ -75,7 +75,7 @@ const startCalculation = () => {
     ? principalLoanAmount * monthlyInterestRate
     : principalLoanAmount;
 
-  const lower = 1 - Math.pow((1 + monthlyInterestRate),(-loanDurationInMonths));
+  const lower = 1 - Math.pow((1 + monthlyInterestRate), (-loanDurationInMonths));
 
   const monthlyPayment = lower === 0
     ? upper / loanDurationInMonths
