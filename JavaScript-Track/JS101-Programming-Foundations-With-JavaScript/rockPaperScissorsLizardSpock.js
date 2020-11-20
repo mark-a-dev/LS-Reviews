@@ -11,7 +11,7 @@ const score = {
 
 const promptUser = (message) => console.log(`=> ${message}\n`);
 
-const getUserAnswer = (ask) => readline.question(promptUser(ask));
+const getUserAnswer = (ask) => readline.question(promptUser(ask)).toLowerCase();
 
 const getValidNumber = (number, lowestNum = 0) => {
   if (Number.isNaN(parseFloat(number))) {
@@ -98,9 +98,18 @@ const getChoice = (computer = true) => {
   return choice;
 };
 
-const displayWinner = (winner = "You", game = false) => {
-  const message = game ? `*** ${winner} WON THE GAME! ****` : `${winner} won the round!`;
-  promptUser(message);
+const displayWinner = (game = false, roundWinner = null) => {
+  if (game) {
+    const { player, computer } = score;
+    if (player === computer) {
+      promptUser("Its a tie!!!");
+    } else {
+      const winner = computer > player ? "Computer" : "YOU";
+      promptUser(`*** ${winner} WON THE GAME! ****`);
+    }
+  } else if (roundWinner) {
+    promptUser(`${roundWinner} won the round!`);
+  }
 };
 
 
@@ -134,8 +143,8 @@ const playRound = (roundNum) => {
     (userChoice === 'sp' && computerChoice === 'sc') ||
     (userChoice === 'sp' && computerChoice === 'r') ||
     (userChoice === 'l' && computerChoice === 'p')) {
-    promptUser('You win!');
     score.player++;
+    displayWinner(false, "You");
   } else if (
     (computerChoice === 'r' && userChoice === 'sc') ||
     (computerChoice === 'r' && userChoice === 'l') ||
@@ -147,14 +156,13 @@ const playRound = (roundNum) => {
     (computerChoice === 'sp' && userChoice === 'sc') ||
     (computerChoice === 'sp' && userChoice === 'r') ||
     (computerChoice === 'l' && userChoice === 'p')) {
-    promptUser('Computer wins!');
     score.computer++;
+    displayWinner(false, "Computer");
   } else {
     promptUser("It's a tie! - Let's try that again....");
     playRound(roundNum);
   }
 
-  displayWinner();
   displayScore(score);
 };
 
