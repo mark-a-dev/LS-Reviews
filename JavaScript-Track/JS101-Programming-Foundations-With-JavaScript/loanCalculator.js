@@ -18,12 +18,12 @@ const promptUser = (message) => console.log(`=> ${message}`);
 const getValidNumber = (number, lowestNum = 0) => {
   if (Number.isNaN(parseFloat(number))) {
     const newNumber = readline.question(promptUser("Hmmm... that's not a valid number... Please try again with a valid number.\n"));
-    getValidNumber(newNumber);
+    return getValidNumber(newNumber);
   }
 
   if (!(number >= lowestNum)) {
     const newNumber = readline.question(promptUser(`Hmmm... please enter a number that is at least ${lowestNum}.\n`));
-    getValidNumber(newNumber);
+    return getValidNumber(newNumber);
   }
 
   return Number(number);
@@ -37,7 +37,7 @@ const getYesOrNo = (message = `Please enter Yes or no`) => {
   const validResponses = ['yes', 'no'];
 
   if (!validResponses.includes(answerKeepGoing)) {
-    getYesOrNo();
+    return getYesOrNo();
   }
 
   return answerKeepGoing === 'yes';

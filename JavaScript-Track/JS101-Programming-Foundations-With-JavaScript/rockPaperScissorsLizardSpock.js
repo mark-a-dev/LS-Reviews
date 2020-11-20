@@ -16,12 +16,12 @@ const getUserAnswer = (ask) => readline.question(promptUser(ask));
 const getValidNumber = (number, lowestNum = 0) => {
   if (Number.isNaN(parseFloat(number))) {
     const newNumber = readline.question(promptUser("Hmmm... that's not a valid number... Please try again with a valid number.\n"));
-    getValidNumber(newNumber);
+    return getValidNumber(newNumber);
   }
 
   if (!(number >= lowestNum)) {
     const newNumber = readline.question(promptUser(`Hmmm... please enter a number that is at least ${lowestNum}.\n`));
-    getValidNumber(newNumber);
+    return getValidNumber(newNumber);
   }
 
   return Number(number);
@@ -104,7 +104,7 @@ const displayWinner = (winner = "You", game = false) => {
 };
 
 
-const displayScore = ({player, computer}) => {
+const displayScore = ({ player, computer }) => {
   promptUser("======== Score ===========");
   promptUser(`You: ${player} || Computer: ${computer}`);
 };
@@ -168,7 +168,7 @@ const startGame = (rounds) => {
 while (true) {
   const numberOfRounds = getValidNumber(readline.question(promptUser("How many rounds would you like to play?")));
 
-  promptUser(`Best of ${numberOfRounds } wins.`);
+  promptUser(`Best of ${numberOfRounds} wins.`);
 
   promptUser('May the best man / woman / lizard / spock win!');
 
