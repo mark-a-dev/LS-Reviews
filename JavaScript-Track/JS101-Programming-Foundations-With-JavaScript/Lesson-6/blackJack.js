@@ -1,5 +1,8 @@
+
 /* eslint-disable max-statements, no-unused-vars, no-loop-func, max-len, max-lines-per-function, complexity*/
 const readline = require('readline-sync');
+
+const BLACKJACK_MAX = process.argv[2] || 21;
 
 const promptUser = (message) => console.log(`=> ${message}\n`);
 
@@ -94,31 +97,33 @@ const dealHands = (deckOfCards) => {
 
 const getHandValue = (hand) => {
   const tens = ["K", "Q", "J", "10"];
+  
   const handValues = hand.map(card => card[0]);
 
   const { hasAce, has10, currentValue } = handValues.reduce((acc, value) => {
-    const { currentValue, hasAce } = acc;
+    const { currentValue, hasAce, aceIsOne } = acc;
 
-    if (!hasAce && value === "A" && currentValue + 11 <= 21) {
+    const numberValue = Number(value);
+
+    if (!hasAce && value === "A" && currentValue + 11 <= BLACKJACK_MAX) {
       acc.hasAce = true;
       acc.currentValue += 11;
-    } else if (hasAce && value === "A" && currentValue + 11 > 21) {
+    } else if (hasAce && value === "A" && !aceIsOne) {
+      acc.aceIsOne = true;
+      acc.currentValue += 1;
+    } else if (hasAce && value !== "A" && !aceIsOne && currentValue + numberValue > BLACKJACK_MAX) {
       acc.currentValue -= 11;
       acc.currentValue += 1;
-    } else if (hasAce && value === "A" && currentValue + 11 <= 21) {
-      acc.currentValue += 1;
-    } else if (hasAce && value !== "A" && currentValue + value >= 21) {
-      acc.currentValue -= 11;
-      acc.currentValue += 1;
+      acc.currentValue += numberValue;
     } else if (value !== "A" && tens.includes(value)) {
       acc.has10 = true;
       acc.currentValue += 10;
     } else {
-      acc.currentValue += Number(value);
+      acc.currentValue += numberValue;
     }
 
     return acc;
-  }, { hasAce: false, has10: false, currentValue: 0 });
+  }, { hasAce: false, has10: false, currentValue: 0, aceIsOne: false });
 
   return {
     handValues,
@@ -135,7 +140,6 @@ const checkHandForBlackJack = (hand) => {
     has10,
     numberOfCards,
   } = hand;
-
 
   if (hasAce && has10 && numberOfCards === 2) {
     return true;
@@ -188,12 +192,14 @@ const playRound = ({
 
   const computerHandParsed = getHandValue(computerHand);
   const { currentValue: computerHandTotalValue } = computerHandParsed;
+  
 
   const playerHasBlackJack = checkHandForBlackJack(playerHandParsed);
   const computerHasBlackJack = checkHandForBlackJack(computerHandParsed);
 
-  const playerHandHas21 = playerHandTotalValue === 21;
-  const playerBusts = playerHandTotalValue > 21;
+  const playerHandHas21 = playerHandTotalValue === BLACKJACK_MAX;
+  const playerBusts = playerHandTotalValue > BLACKJACK_MAX;
+
   if (playerHasBlackJack && computerHasBlackJack) {
     push = true;
     winner = null;
@@ -202,12 +208,6 @@ const playRound = ({
   } else if (computerTurn && playerHandTotalValue === computerHandTotalValue) {
     push = true;
     winner = null;
-
-    console.dir({
-      computerTurn,
-      playerHandTotalValue,
-      computerHandTotalValue,
-    });
 
     promptUser(`Push... Both of us have ${playerHandTotalValue}`);
   } else if (playerHasBlackJack) {
@@ -232,7 +232,7 @@ const playRound = ({
   } else if (
     computerTurn
     && computerHandTotalValue > 16
-    && computerHandTotalValue <= 21
+    && computerHandTotalValue <= BLACKJACK_MAX
     && computerHandTotalValue > playerHandTotalValue
   ) {
     winner = "computer";
@@ -240,11 +240,20 @@ const playRound = ({
   } else if (
     computerTurn
     && computerHandTotalValue > 16
-    && computerHandTotalValue > 21
+    && computerHandTotalValue > BLACKJACK_MAX
   ) {
     winner = "player";
 
     promptUser(`Good job - player had ${playerHandTotalValue} &  House busts ${computerHandTotalValue}`);
+  }
+
+  if (winner || push) {
+    return {
+      winner,
+      push,
+      computerHand,
+      playerHand,
+    };
   }
 
   const stillPlayersTurn = !winner && !playerHandHas21 && !playerBusts && playerTurn;
@@ -259,21 +268,18 @@ const playRound = ({
     const newCard = currentDeck.pop();
     playerHand.push(newCard);
     return playRound({ playerHand, computerHand, currentDeck, playerTurn: true, computerTurn: false });
-  } else if (computerTurn && computerHandTotalValue < 16) {
+  } else if (computerTurn && computerHandTotalValue < 17) {
     const newCard = currentDeck.pop();
     computerHand.push(newCard);
     return playRound({ playerHand, computerHand, currentDeck, playerTurn: false, computerTurn: true });
   } else if (playerTurn && (playerHandHas21 || playerWantsNoMoreCards)) {
-    return playRound({ playerHand, computerHand, currentDeck, playerTurn: false, computerTurn: true, });
-  }
-
-  if (winner || push) {
-    return {
-      winner,
-      push,
+    return playRound({
+      playerHand, 
       computerHand,
-      playerHand,
-    };
+      currentDeck,
+      playerTurn: false,
+      computerTurn: true,
+    });
   }
 };
 
