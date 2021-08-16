@@ -108,6 +108,9 @@ const getHandValue = (hand) => {
     if (!hasAce && value === "A" && currentValue + 11 <= BLACKJACK_MAX) {
       acc.hasAce = true;
       acc.currentValue += 11;
+    } else if (!hasAce && value === "A" && currentValue + 11 > 21) {
+      acc.hasAce = true;
+      acc.currentValue += 1;
     } else if (hasAce && value === "A" && !aceIsOne) {
       acc.aceIsOne = true;
       acc.currentValue += 1;
@@ -130,7 +133,7 @@ const getHandValue = (hand) => {
     hasAce,
     has10,
     currentValue,
-    numberOfCards: hand.length,
+    numberOfCards: handValues.length,
   };
 };
 
