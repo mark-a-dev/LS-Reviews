@@ -1,8 +1,8 @@
-
-/* eslint-disable max-statements, no-unused-vars, no-loop-func, max-len, max-lines-per-function, complexity*/
+/* eslint-disable max-statements, max-lines-per-function, complexity*/
 const readline = require('readline-sync');
 
 const BLACKJACK_MAX = process.argv[2] || 21;
+const TENS = ["K", "Q", "J", "10"];
 
 const promptUser = (message) => console.log(`=> ${message}\n`);
 
@@ -13,7 +13,7 @@ const askToPlayGame = () => {
   const validAnswers = ["yes", "no"];
 
   if (!validAnswers.includes(answer.toLowerCase())) {
-    askToPlayGame();
+    return askToPlayGame();
   } else if (answer.toLowerCase() === "yes") {
     return true;
   } else {
@@ -96,8 +96,6 @@ const dealHands = (deckOfCards) => {
 };
 
 const getHandValue = (hand) => {
-  const tens = ["K", "Q", "J", "10"];
-  
   const handValues = hand.map(card => card[0]);
 
   const { hasAce, has10, currentValue } = handValues.reduce((acc, value) => {
@@ -118,7 +116,7 @@ const getHandValue = (hand) => {
       acc.currentValue -= 11;
       acc.currentValue += 1;
       acc.currentValue += numberValue;
-    } else if (value !== "A" && tens.includes(value)) {
+    } else if (value !== "A" && TENS.includes(value)) {
       acc.has10 = true;
       acc.currentValue += 10;
     } else {
@@ -154,48 +152,30 @@ const checkHandForBlackJack = (hand) => {
 const displayHand = (cards) => {
   cards.forEach(card => {
     const [ value, suit ] = card;
-    console.log("------------");
-    console.log("|          |");
-    console.log("|          |");
-    if (value.length === 2) {
-      console.log(`|    ${value}    |`);
-    } else {
-      console.log(`|    ${value[0]}     |`);
-    }
 
-    console.log(`|    ${suit[0]}     |`);
-    console.log("|          |");
-    console.log("|          |");
-    console.log("------------");
-    console.log("");
+    const body = value.length === 2
+      ? `|    ${value}    |`
+      : (`|    ${value[0]}     |`);
+    const suitString = `|    ${suit[0]}     |`;
+    console.log(`
+      ------------
+      |          |
+      |          |
+      ${body}
+      ${suitString}
+      |          |
+      |          |
+      ------------
+    `);
   });
 };
 
-const playRound = ({
-  playerHand,
-  computerHand,
-  currentDeck,
-  playerTurn = true,
-  computerTurn = false,
-}) => {
+const getWinnerOrPush = ({ playerHandParsed, computerHandParsed, computerTurn }) => {
   let winner = null;
   let push = null;
 
-  const [computerFirstCard, __] = computerHand;
-
-  const computerHandMasked = [computerFirstCard, ["    ",  "     " ]];
-
-  promptUser("Computer Hand:");
-  displayHand(computerTurn ? computerHand : computerHandMasked);
-  promptUser("Your Hand:");
-  displayHand(playerHand);
-
-  const playerHandParsed = getHandValue(playerHand);
   const { currentValue: playerHandTotalValue } = playerHandParsed;
-
-  const computerHandParsed = getHandValue(computerHand);
   const { currentValue: computerHandTotalValue } = computerHandParsed;
-  
 
   const playerHasBlackJack = checkHandForBlackJack(playerHandParsed);
   const computerHasBlackJack = checkHandForBlackJack(computerHandParsed);
@@ -208,7 +188,10 @@ const playRound = ({
     winner = null;
 
     promptUser("Push... Both of us have Blackjack");
-  } else if (computerTurn && playerHandTotalValue === computerHandTotalValue) {
+  } else if (
+    computerTurn
+    && (computerHandTotalValue >= 17 )
+    && playerHandTotalValue === computerHandTotalValue) {
     push = true;
     winner = null;
 
@@ -250,6 +233,42 @@ const playRound = ({
     promptUser(`Good job - player had ${playerHandTotalValue} &  House busts ${computerHandTotalValue}`);
   }
 
+  return {
+    winner,
+    push,
+    playerHandHas21,
+    playerBusts
+  };
+};
+
+const playRound = ({
+  playerHand,
+  computerHand,
+  currentDeck,
+  playerTurn = true,
+  computerTurn = false,
+}) => {
+  const [computerFirstCard ] = computerHand;
+
+  const computerHandMasked = [computerFirstCard, ["    ",  "     " ]];
+
+  promptUser("Computer Hand:");
+  displayHand(computerTurn ? computerHand : computerHandMasked);
+  promptUser("Your Hand:");
+  displayHand(playerHand);
+
+  const playerHandParsed = getHandValue(playerHand);
+
+  const computerHandParsed = getHandValue(computerHand);
+  const { currentValue: computerHandTotalValue } = computerHandParsed;
+
+  const {
+    winner,
+    push,
+    playerHandHas21,
+    playerBusts
+  } = getWinnerOrPush({ playerHandParsed, computerHandParsed, computerTurn });
+
   if (winner || push) {
     return {
       winner,
@@ -270,20 +289,33 @@ const playRound = ({
   if (playWantsAnotherCard) {
     const newCard = currentDeck.pop();
     playerHand.push(newCard);
-    return playRound({ playerHand, computerHand, currentDeck, playerTurn: true, computerTurn: false });
+    return playRound({
+      playerHand,
+      computerHand,
+      currentDeck,
+      playerTurn: true,
+      computerTurn: false
+    });
   } else if (computerTurn && computerHandTotalValue < 17) {
     const newCard = currentDeck.pop();
     computerHand.push(newCard);
-    return playRound({ playerHand, computerHand, currentDeck, playerTurn: false, computerTurn: true });
+    return playRound({
+      playerHand,
+      computerHand,
+      currentDeck,
+      playerTurn: false,
+      computerTurn: true
+    });
   } else if (playerTurn && (playerHandHas21 || playerWantsNoMoreCards)) {
     return playRound({
-      playerHand, 
+      playerHand,
       computerHand,
       currentDeck,
       playerTurn: false,
       computerTurn: true,
     });
   }
+  return {};
 };
 
 const initializeGame = () => {

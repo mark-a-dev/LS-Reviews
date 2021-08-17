@@ -1,7 +1,7 @@
 {
-  "name": "ls-reviews",
+  "name": "ls-course",
   "version": "1.0.0",
-  "description": "",
+  "description": "Launch School",
   "main": "index.js",
   "dependencies": {
     "readline-sync": "^1.4.10"
@@ -12,16 +12,14 @@
     "eslint-cli": "^1.1.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx eslint $npm_config_file",
+    "format": "npx eslint $npm_config_file --fix"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mark-a-dev/LS-Reviews.git"
+    "url": "git@dev:mark-a-dev/LS.git"
   },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/mark-a-dev/LS-Reviews/issues"
-  },
-  "homepage": "https://github.com/mark-a-dev/LS-Reviews#readme"
+  "author": "Mark Awai",
+  "license": "ISC"
 }
