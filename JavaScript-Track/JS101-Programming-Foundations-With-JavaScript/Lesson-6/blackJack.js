@@ -2,6 +2,8 @@
 const readline = require('readline-sync');
 
 const BLACKJACK_MAX = process.argv[2] || 21;
+const SUITS = ["Hearts", "Spades", "Clubs", "Diamonds"];
+const VALUES = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
 const TENS = ["K", "Q", "J", "10"];
 
 const promptUser = (message) => console.log(`=> ${message}\n`);
@@ -41,11 +43,8 @@ const askToHitOrStay = () => {
 };
 
 const createDeck = () => {
-  const suits = ["Hearts", "Spades", "Clubs", "Diamonds"];
-  const values = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
-
-  const deckOfCards = suits.reduce((acc, suit) => {
-    values.forEach((cardValue) => {
+  const deckOfCards = SUITS.reduce((acc, suit) => {
+    VALUES.forEach((cardValue) => {
       acc.push([cardValue, suit]);
     });
     return acc;
