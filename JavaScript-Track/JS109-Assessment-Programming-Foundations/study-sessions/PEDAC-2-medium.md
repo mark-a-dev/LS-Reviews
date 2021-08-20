@@ -81,13 +81,12 @@ Array returned with persons objects mapped
 7. Iterate over peoplePropertiesList until length of said list minus 1
 8. For every iteration, reassign `currentProperty` to element at current index of `personProperties` list
 9. For every iteration, increment `count` plus 1
-10. For every 3 properties, use first property as name, second property as age
-11. If `count` is 0, set personDetail name property to currentProperty
-12. If `count` is 1, set personDetail age property to currentProperty
-13. If `count` is 2, set personDetail occupation property to currentProperty
-
-14. If `count` is equal to 2, push new object or dictionary with personDetail key value pairs  unto peopleMapped
-15. If `count` is equal to 2, Reassign personDetail back to initial value with keys name, age, occupation & set all values to null
+10. For every 3 properties, use first property as name, second property as age, & third as occupation
+11. If `count` is 0, set `personDetail` name property to `currentProperty`
+12. If `count` is 1, set `personDetail` age property to `currentProperty`
+13. If `count` is 2, set `personDetail` occupation property to `currentProperty`
+14. If `count` is equal to 2, push new object or dictionary with `personDetail` key value pairs  unto peopleMapped
+15. If `count` is equal to 2, reassign `personDetail` back to initial value with keys name, age, occupation & set all values to null
 16. If `count` is equal to 2, reset `count` via reassignment to zero
 17. Return `peopleMapped`
 
